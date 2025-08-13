@@ -1,10 +1,11 @@
 {
   "name": "backend",
   "version": "1.0.0",
+  "type": "module",
   "description": "",
   "main": "index.ts",
   "scripts": {
-    "dev": "ts-node-dev --respawn index.ts"
+    "dev": "ts-node-dev --respawn --loader ts-node/esm index.ts"
   },
   "keywords": [],
   "author": "",
@@ -16,6 +17,7 @@
   "devDependencies": {
     "@types/express": "^5.0.3",
     "@types/node": "^24.2.0",
+    "@types/cors": "^2.8.17",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.9.2"
   }

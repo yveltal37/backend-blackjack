@@ -1,3 +1,11 @@
+import express from "express";
+import cors from "cors";
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+
 type Suit = "diamond" | "leaf" | "heart" | "clover";
 type Value = "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "10" | "j" | "q" | "k" | "a";
 
@@ -12,6 +20,8 @@ type Player = {
 };
 
 let deck: Card[] = [];
+let player: Player = { hand: [], score: 0 };
+let dealer: Player = { hand: [], score: 0 };
 
 function createDeck(): Card[] {
     const suits: Suit[] = ["diamond", "leaf", "heart", "clover"];
@@ -48,9 +58,9 @@ function calculateScore(hand: Card[]): number {
         else
             score += 11; 
         } else if (['k', 'q', 'j'].includes(card.value)) {
-        score += 10; // מלך, מלכה, ג'ק שווים 10 נקודות
+            score += 10; 
         } else {
-        score += parseInt(card.value); // מספרים מ-2 עד 10 שווים את המספר שלהם
+            score += parseInt(card.value);
         }
     }
 
@@ -61,8 +71,10 @@ function startGame() {
     deck = createDeck();
     deck = shuffleDeck(deck);
 
-    const player: Player = { hand: [], score: 0 };
-    const dealer: Player = { hand: [], score: 0 };
+    player.hand = [];
+    player.score = 0;
+    dealer.hand = [];
+    dealer.score = 0;
 
     for (let i = 0; i < 2; i++) {
         player.hand.push(deck.pop()!);
@@ -90,6 +102,25 @@ function hit(player: Player) {
 }
 
 
-startGame();
 
+app.post("/start", (req, res) => {
+    startGame();
+    res.json({ player, dealer, remainingCards: deck.length });
+});
 
+app.post("/hit", (req, res) => {
+    hit(player);
+    res.json({ player, remainingCards: deck.length });
+});
+
+app.post("/stand", (req, res) => {
+    while(dealer.score < 17) {
+        hit(dealer);
+    }
+    res.json({ dealer, player, remainingCards: deck.length });
+});
+
+const PORT = 3001;
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
